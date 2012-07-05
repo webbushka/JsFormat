@@ -6,5 +6,7 @@
 	"preserve_newlines": true,
 	"keep_function_indentation": false,
 	"indent_with_tabs": false,
-	"ensure_newline_at_eof_on_save": false
+	"ensure_newline_at_eof_on_save": false,
+	"enabled_extensions": ["js", "json"],
+	"enabled_syntax":["javascript", "json"]
 }

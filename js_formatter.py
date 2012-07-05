@@ -1,8 +1,16 @@
-import sublime, sublime_plugin, jsbeautifier, re
+import sublime, sublime_plugin, jsbeautifier, re, os
 
 s = sublime.load_settings("JsFormat.sublime-settings")
 
-class JsFormatCommand(sublime_plugin.TextCommand):
+class JsFormatCommand(sublime_plugin.TextCommand):	
+	def is_enabled(self):		
+		return self.formatting_enabled()
+
+
+	def description(self):
+		return "javascript formatting"
+
+
 	def run(self, edit):
 		settings = self.view.settings()
 
@@ -56,6 +64,7 @@ class JsFormatCommand(sublime_plugin.TextCommand):
 		preTxt = self.view.substr(sublime.Region(0, pos));
 		return len(re.findall('\S', preTxt))
 
+
 	def get_nws_offset(self, nonWsChars, buff):
 		nonWsSeen = 0
 		offset = 0
@@ -68,3 +77,20 @@ class JsFormatCommand(sublime_plugin.TextCommand):
 				break
 
 		return offset
+
+
+	def formatting_enabled(self):
+		fName = self.view.file_name()
+		vSettings = self.view.settings()
+		syntaxPath = vSettings.get('syntax')
+		syntax = None
+		ext = None
+		
+		if (fName != None): # file exists, pull  type from extension
+			ext = os.path.splitext(fName)[1][1:]
+			return ext in s.get("enabled_extensions")
+		elif(syntaxPath != None):
+			syntax = os.path.splitext(syntaxPath)[0].split('/')[-1].lower()
+			return syntax in s.get("enabled_syntax")	
+		else:
+			return True
