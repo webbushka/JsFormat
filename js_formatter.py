@@ -50,13 +50,23 @@ def is_js_buffer(view):
 	syntaxPath = vSettings.get('syntax')
 	syntax = ""
 	ext = ""
+	format_by = s.get("format_by")
+	syntaxList = s.get("format_file_syntax")
+	extensionList = s.get("format_file_extension")
+	result = False
 
-	if (fName != None): # file exists, pull syntax type from extension
-		ext = os.path.splitext(fName)[1][1:]
-	if(syntaxPath != None):
-		syntax = os.path.splitext(syntaxPath)[0].split('/')[-1].lower()
+	if (format_by in ['both', 'extension']):
+		if (fName != None): # file exists, pull syntax type from extension
+			ext = os.path.splitext(fName)[1][1:]
+			if (ext in extensionList):
+				result = True
+	if (format_by in ['both', 'syntax']):
+		if(syntaxPath != None):
+			syntax = os.path.splitext(syntaxPath)[0].split('/')[-1].lower()
+			if (syntax in syntaxList):
+				result = True;
 
-	return ext in ['js', 'json'] or "javascript" in syntax or "json" in syntax
+	return result
 
 def get_rc_paths(cwd):
 	result = []

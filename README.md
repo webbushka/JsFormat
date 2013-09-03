@@ -27,6 +27,9 @@ The following **JsBeautifier** settings are available in JsFormat/JsFormat.subli
 * `break_chained_methods`: false*
 * `e4x`: false
 * `wrap_line_length`: 0
+* "format_by_extension_syntax": "both"  (both, extension, syntax)
+* "format_file_extension": ["js", "json"]
+* "format_file_syntax": ["javascript", "json"]
 
 The following **JsFormat** specific settings are also exposed:
 

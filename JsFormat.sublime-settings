@@ -16,5 +16,8 @@
 
 	// jsformat options
 	"format_on_save": false,
-	"jsbeautifyrc_files": false
+	"jsbeautifyrc_files": false,
+	"format_by": "both", // both, syntax, extension
+	"format_file_extension": ["js", "json"],
+	"format_file_syntax": ["javascript", "json"]
 }
