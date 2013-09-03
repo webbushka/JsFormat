@@ -45,25 +45,25 @@ if is_py2k:
 
 
 def is_js_buffer(view):
-	fName = view.file_name()
-	vSettings = view.settings()
-	syntaxPath = vSettings.get('syntax')
+	f_name = view.file_name()
+	v_settings = view.settings()
+	syntax_path = v_settings.get('syntax')
 	syntax = ""
 	ext = ""
 	format_by = s.get("format_by")
-	syntaxList = s.get("format_file_syntax")
-	extensionList = s.get("format_file_extension")
+	syntax_list = s.get("format_file_syntax")
+	extension_list = s.get("format_file_extension")
 	result = False
 
 	if (format_by in ['both', 'extension']):
-		if (fName != None): # file exists, pull syntax type from extension
-			ext = os.path.splitext(fName)[1][1:]
-			if (ext in extensionList):
+		if (f_name != None): # file exists, pull syntax type from extension
+			ext = os.path.splitext(f_name)[1][1:]
+			if (ext in extension_list):
 				result = True
 	if (format_by in ['both', 'syntax']):
-		if(syntaxPath != None):
-			syntax = os.path.splitext(syntaxPath)[0].split('/')[-1].lower()
-			if (syntax in syntaxList):
+		if(syntax_path != None):
+			syntax = os.path.splitext(syntax_path)[0].split('/')[-1].lower()
+			if (syntax in syntax_list):
 				result = True;
 
 	return result
@@ -71,11 +71,11 @@ def is_js_buffer(view):
 def get_rc_paths(cwd):
 	result = []
 	subs = cwd.split(os.sep)
-	fullPath = ""
+	full_path = ""
 
 	for value in subs:
-		fullPath += value + os.sep
-		result.append(fullPath + '.jsbeautifyrc')
+		full_path += value + os.sep
+		result.append(full_path + '.jsbeautifyrc')
 
 	return result
 
@@ -118,10 +118,10 @@ def augment_options(options, subset):
 	return options
 
 def augment_options_by_rc_files(options, view):
-	fileName = view.file_name()
+	file_name = view.file_name()
 
-	if (fileName != None):
-		files = filter_existing_files(get_rc_paths(os.path.dirname(fileName)))
+	if (file_name != None):
+		files = filter_existing_files(get_rc_paths(os.path.dirname(file_name)))
 		for value in files:
 			jsonOptions = read_json(value)
 			options = augment_options(options, jsonOptions)
@@ -149,12 +149,12 @@ class JsFormatCommand(sublime_plugin.TextCommand):
 			opts = augment_options_by_rc_files(opts, self.view)
 
 		selection = self.view.sel()[0]
-		formatSelection = False
+		multiple_selection = False
 		# formatting a selection/highlighted area
 		if(len(selection) > 0):
-			formatSelection = True
+			multiple_selection = True
 
-		if formatSelection:
+		if multiple_selection:
 			self.format_selection(edit, opts)
 		else:
 			self.format_whole_file(edit, opts)
