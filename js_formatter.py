@@ -43,30 +43,60 @@ def plugin_loaded():
 if is_py2k:
 	plugin_loaded()
 
+def get_extension(view):
+	f_name = view.file_name()
 
-def is_js_buffer(view):
+	if(f_name == None):
+		return None
+
+	fragments = f_name.split(".")
+	ext = ".".join(fragments[1:]) if len(fragments) > 1 else None
+
+	return ext
+
+
+def is_formattable_buffer(view):
 	f_name = view.file_name()
 	v_settings = view.settings()
 	syntax_path = v_settings.get('syntax')
-	syntax = ""
-	ext = ""
 	format_by = s.get("format_by")
 	syntax_list = s.get("format_file_syntax")
 	extension_list = s.get("format_file_extension")
-	result = False
+	ignore_extensions = s.get("always_ignore_extensions")
+	ext = get_extension(view)
+	ext_formattable = False
+	syntax_formattable = False
 
-	if (format_by in ['both', 'extension']):
-		if (f_name != None): # file exists, pull syntax type from extension
-			ext = os.path.splitext(f_name)[1][1:]
-			if (ext in extension_list):
-				result = True
-	if (format_by in ['both', 'syntax']):
-		if(syntax_path != None):
-			syntax = os.path.splitext(syntax_path)[0].split('/')[-1].lower()
-			if (syntax in syntax_list):
-				result = True;
+	if(format_by == "all"):
+		return True
 
-	return result
+	# always bail if the extension matches one in the ignore list
+	if (ext in ignore_extensions):
+		return False
+
+	# by extension
+	if (ext != None and ext in extension_list):
+		ext_formattable = True
+
+	# by syntax
+	if (syntax_path != None):
+		syntax = os.path.splitext(syntax_path)[0].split('/')[-1].lower()
+		if (syntax in syntax_list):
+			syntax_formattable = True;
+
+	if (format_by == "either"):
+		return ext_formattable or syntax_formattable
+
+	if(format_by == "both"):
+		return ext_formattable and syntax_formattable
+
+	if(format_by == "syntax"):
+		return syntax_formattable
+
+	if(format_by == "ext"):
+		return ext_formattable
+
+	return False
 
 def get_rc_paths(cwd):
 	result = []
@@ -131,13 +161,17 @@ def augment_options_by_rc_files(options, view):
 class PreSaveFormatListner(sublime_plugin.EventListener):
 	"""Event listener to run JsFormat during the presave event"""
 	def on_pre_save(self, view):
-		if(s.get("format_on_save") == True and is_js_buffer(view)):
+		if(s.get("format_on_save") == True and is_formattable_buffer(view)):
 			view.run_command("js_format")
 
 
 class JsFormatCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		settings = self.view.settings()
+
+		if(not is_formattable_buffer(self.view)):
+			sublime.status_message("JsFormat: check your user settings, they say this buffer isn't formattable")
+			return
 
 		# settings
 		opts = jsbeautifier.default_options()
@@ -242,4 +276,4 @@ class JsFormatCommand(sublime_plugin.TextCommand):
 			sublime.error_message("JsFormat: Merge failure: '%s'" % err)
 
 	def is_visible(self):
-		return is_js_buffer(self.view)
+		return is_formattable_buffer(self.view)
