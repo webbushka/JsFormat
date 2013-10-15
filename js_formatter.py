@@ -121,6 +121,10 @@ def augment_options_by_rc_files(options, view):
 class PreSaveFormatListner(sublime_plugin.EventListener):
 	"""Event listener to run JsFormat during the presave event"""
 	def on_pre_save(self, view):
+		// Don't format if there is a comment with [no-format]
+		region = view.find('\[no-format\]', 0)
+		if region.a > -1:
+			return
 		if(s.get("format_on_save") == True and is_js_buffer(view)):
 			view.run_command("js_format")
 
